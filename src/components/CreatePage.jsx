@@ -1,12 +1,23 @@
-import { Col, Row, Select, Spin } from "antd";
+import {
+  Button,
+  Col,
+  Input,
+  message,
+  Modal,
+  Row,
+  Select,
+  Spin,
+  Steps,
+} from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDebounce } from "./customHooks/debounce";
 import Editor from "./Editor";
 import SideBar from "./SideBar";
 import axios from "axios";
+import ShortUniqueId from "short-unique-id";
 
-const CreatePage = () => {
+const CreatePage = ({ readOnly }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [options, setOptions] = useState([]);
@@ -15,16 +26,21 @@ const CreatePage = () => {
   const [loading, setLoading] = useState(false);
   const [pages, setPages] = useState([]);
   const [activePage, setActivePage] = useState(null);
+  const [shareModal, setShareModal] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [subDomain, setSubDomain] = useState("");
+  const [cName, setCName] = useState("");
   const debouncedSearchTerm = useDebounce(searchValue, 500);
   const apiUpdationRef = useRef(false);
-  useEffect(() => {
-    const loggedInUser = JSON.parse(
-      localStorage.getItem("userData")
-    )?.isLoggedin;
-    if (!loggedInUser) {
-      navigate("/login");
-    }
-  }, [location.pathname]);
+  const uniqueId = new ShortUniqueId({ length: 10 }).rnd();
+  // useEffect(() => {
+  //   const loggedInUser = JSON.parse(
+  //     localStorage.getItem("userData")
+  //   )?.isLoggedin;
+  //   if (!loggedInUser) {
+  //     navigate("/login");
+  //   }
+  // }, [location.pathname]);
 
   useEffect(() => {
     (async () => {
@@ -46,37 +62,36 @@ const CreatePage = () => {
 
   useEffect(() => {
     if (searchValue) {
-      try{(async()=>{
-        const data = await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/docs/search`,
-          {
-            userId: localStorage.getItem("userId"),
-            documentId: localStorage.getItem("documentId"),
-            title:searchValue
-          }
-        );
-        const optionsData = data?.data?.message.map((val)=>{
-          return {
-            label:val.title,
-            value:JSON.stringify(val)
-          }
-        })
-        setOptions(optionsData);
-      })()
-      }catch(err){
-        console.log("🚀 ~ useEffect ~ err:", err)
+      try {
+        (async () => {
+          const data = await axios.post(
+            `${import.meta.env.VITE_BASE_URL}/docs/search`,
+            {
+              userId: localStorage.getItem("userId"),
+              documentId: localStorage.getItem("documentId"),
+              title: searchValue,
+            }
+          );
+          const optionsData = data?.data?.message.map((val) => {
+            return {
+              label: val.title,
+              value: JSON.stringify(val),
+            };
+          });
+          setOptions(optionsData);
+        })();
+      } catch (err) {
+        console.log("🚀 ~ useEffect ~ err:", err);
       }
     } else {
       setOptions([]);
     }
   }, [debouncedSearchTerm]);
   const selectHandler = (value, record) => {
-    console.log("🚀 ~ selectHandler ~ value, record:", value, record)
     setActivePage(JSON.parse(value.value));
-    setSearchValue("")
+    setSearchValue("");
   };
   const searchHandler = (event) => {
-    console.log("🚀 ~ searchHandler ~ event:", event)
     if (event) {
       setSearchValue(event);
     } else {
@@ -183,6 +198,58 @@ const CreatePage = () => {
     pageContent(pageId, newContent);
   };
 
+  const handleOK = async () => {
+    if (currentStep === 0) {
+      const isSubDomain = subDomain.split(".").length;
+      if (isSubDomain === 3) {
+        setCName(`${subDomain.split(".")[0]}-${uniqueId}.yogendersingh.tech`);
+        setCurrentStep(currentStep + 1);
+      } else {
+        message.error("Not a valid subdomain");
+      }
+    }
+    if (currentStep === 1) {
+      setLoading(true);
+      try {
+        const data = await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/docs/save-cname`,
+          {
+            cnameTarget: cName,
+            url: subDomain,
+          }
+        );
+        if (data.status === 200) {
+          message.success(data.data.message);
+          setCurrentStep(currentStep + 1);
+        }
+      } catch (err) {
+        message.error(err.response.data.message);
+      }
+      setLoading(false);
+    }
+    if (currentStep === 2) {
+    }
+  };
+
+  const handleCancel = () => {
+    setCurrentStep(0);
+    setShareModal(false);
+  };
+  const currentHost = window.location.host;
+  const subdomainPattern = /^[^.]+\.[^.]+$/;
+  console.log(":",readOnly)
+if(!readOnly){
+    const isSubdomain = subdomainPattern.test(currentHost);
+    if (isSubdomain) {
+      return (<>this is not a valid subdomain</>)
+    }
+}
+else{
+  const isSubdomain = subdomainPattern.test(currentHost);
+  if (!isSubdomain) {
+    navigate("/create")
+  }
+}
   return (
     <Spin spinning={loading}>
       <Select
@@ -197,9 +264,19 @@ const CreatePage = () => {
         onSearch={searchHandler}
         onSelect={selectHandler}
       />
+      {!readOnly ? (
+        <Button
+          onClick={() => {
+            setShareModal(true);
+          }}
+        >
+          Share
+        </Button>
+      ) : null}
       <Row>
         <Col span={18} push={6}>
           <Editor
+            readOnly={readOnly}
             apiUpdationRef={apiUpdationRef}
             setLoading={setLoading}
             pageTitle={handleTitleChange}
@@ -211,6 +288,7 @@ const CreatePage = () => {
         </Col>
         <Col span={6} pull={18}>
           <SideBar
+            readOnly={readOnly}
             apiUpdationRef={apiUpdationRef}
             setLoading={setLoading}
             addPage={addPage}
@@ -221,6 +299,43 @@ const CreatePage = () => {
           />
         </Col>
       </Row>
+      <Modal open={shareModal} onOk={handleOK} onCancel={handleCancel}>
+        <Steps
+          current={currentStep}
+          items={[
+            {
+              title: "Sub-Domain Name",
+              description: "Share Subdomain name",
+            },
+            {
+              title: "CName Enter",
+            
+            },
+            {
+              title: "Waiting",
+              
+            },
+          ]}
+        />
+        {currentStep === 0 ? (
+          <>
+            <Input
+              placeholder="Enter your subdomain"
+              value={subDomain}
+              onChange={(event) => {
+                setSubDomain(event.target.value);
+              }}
+            />
+          </>
+        ) : currentStep === 1 ? (
+          <>
+            <Input disabled={true} value={subDomain.split(".")[0]} />
+            <Input disabled={true} value={cName} />
+          </>
+        ) : (
+          "waiting for the response"
+        )}
+      </Modal>
     </Spin>
   );
 };

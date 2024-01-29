@@ -9,13 +9,15 @@ const SideBar = ({
 	setActivePage,
 	activePage,
     setLoading,
-    apiUpdationRef
+    apiUpdationRef,
+    readOnly
 }) => {
   return (
    <>
     {pages?.map((page) => (
         <React.Fragment key={page.uniqueId}>
             <Item
+            readOnly={readOnly}
             apiUpdationRef={apiUpdationRef}
                 page={page}
                 addSubPage={addSubPage}

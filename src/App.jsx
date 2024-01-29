@@ -6,7 +6,8 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<CreatePage />} />
+        <Route path="/" element={<CreatePage readOnly={true}/>} />
+        <Route path="/create" element={<CreatePage />} />
         <Route path="/login" element={<Login />} />
       </Routes>
     </>
