@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Button, Input } from "antd";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
-const { TextArea } = Input;
+const { TextArea, Text } = Input;
 
 function Editor({
   pageTitle,
@@ -12,8 +14,25 @@ function Editor({
   activePage,
   setLoading,
   apiUpdationRef,
+  readOnly
 }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [value, setValue] = useState("");
+  const [modules, setModules] = useState({
+    toolbar: [
+      ["bold", "italic", "underline", "strike"], // default modules
+      ["blockquote", "code-block"],
+      [{ header: 1 }, { header: 2 }], // custom modules
+    ],
+  });
+
+  // useEffect(()=>{
+  //   const quillBox = document.querySelector(".ql-container");
+  //   // if(quillBox){
+  //   //   quillBox.style.border = "none"
+  //   // }
+  // },[])
+
   const pageHandler = async (page) => {
     if (isEditing) {
       setLoading(true);
@@ -27,11 +46,12 @@ function Editor({
         console.log("error", err);
       }
       setLoading(false);
-      setIsEditing(false)
+      setIsEditing(false);
     } else {
       setIsEditing(true);
     }
   };
+  // const modules=
 
   const renderPage = (page) => {
     const isPageActive = activePage && page.uniqueId === activePage.uniqueId;
@@ -39,47 +59,38 @@ function Editor({
       <React.Fragment key={page.uniqueId}>
         {isPageActive && (
           <>
-            <Button
+           {readOnly ? <Button
               onClick={() => {
                 pageHandler(page);
               }}
             >
               {!isEditing ? "edit" : "save"}
-            </Button>
-            {/* <VStack marginX={{ base: 0, lg: "65px" }}> */}
-            <TextArea
+            </Button> : null}
+            <Input
+              variant="borderless"
+              size="large"
               disabled={!isEditing}
               value={page.title}
-              placeholder="Untitled Page"
-              // fontSize="4xl"
-              // _focusVisible={{ outline: "none" }}
-              // variant="unstyled"
-              // fontWeight="bold"
-              // resize="none"
+              placeholder="Write you Title here"
               onChange={(e) => pageTitle(page.uniqueId, e.target.value)}
-              // rows={3}
             />
-            <TextArea
+            <Input
+              variant="borderless"
+              size="medium"
               disabled={!isEditing}
               value={page.description}
-              placeholder="Page Description (Optional)"
-              // _focusVisible={{ outline: "none" }}
-              // color="gray.300"
-              // variant="unstyled"
-              // resize="none"
+              placeholder="Write description (Optional)"
               onChange={(e) => pageDescription(page.uniqueId, e.target.value)}
             />
-            <TextArea
+           
+           <Input
+              variant="borderless"
+              size="medium"
               disabled={!isEditing}
-              placeholder="Enter your content here..."
-              // _placeholder={{ color: "gray.300" }}
-              // _focusVisible={{ outline: "none" }}
-              // variant="unstyled"
-              onChange={(e) => pageContent(page.uniqueId, e.target.value)}
               value={page.content}
-              // resize="none"
+              placeholder="Write the content here"
+              onChange={(e) => pageContent(page.uniqueId, e.target.value)}
             />
-            {/* </VStack> */}
           </>
         )}
         {page?.subPages?.map((subPage) => (

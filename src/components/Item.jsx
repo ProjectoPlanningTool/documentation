@@ -1,34 +1,43 @@
 import axios from "axios";
 import { MoreOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Collapse, Popover } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
-function Item({ page, addSubPage, setActivePage, activePage,setLoading,apiUpdationRef }) {
-  const [open,setOpen] = useState(false)
+function Item({
+  page,
+  addSubPage,
+  setActivePage,
+  activePage,
+  setLoading,
+  apiUpdationRef,
+  readOnly,
+}) {
+  const [open, setOpen] = useState(false);
   const handleClick = (page) => {
     setActivePage(page);
   };
   const deletePageHandler = async (page) => {
-    setLoading(true)
+    setLoading(true);
     try {
       const data = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/docs/removePage`,
         page
       );
-      apiUpdationRef.current = !apiUpdationRef.current
+      apiUpdationRef.current = !apiUpdationRef.current;
     } catch (err) {
       console.log("err", err);
     }
-    setLoading(false)
+    setLoading(false);
   };
 
   const onChange = (event) => {
     handleClick(page);
   };
 
-  const handleOpenChange = (openChange)=>{
-    setOpen(openChange)
-  }
+  const handleOpenChange = (openChange) => {
+    setOpen(openChange);
+  };
   const isActive = activePage?.uniqueId === page.uniqueId;
   const content = (
     <>
@@ -37,7 +46,7 @@ function Item({ page, addSubPage, setActivePage, activePage,setLoading,apiUpdati
           <div>
             <Button
               onClick={() => {
-                setOpen(false)
+                setOpen(false);
                 addSubPage(page);
               }}
             >
@@ -50,7 +59,7 @@ function Item({ page, addSubPage, setActivePage, activePage,setLoading,apiUpdati
       <div>
         <Button
           onClick={() => {
-            setOpen(false)
+            setOpen(false);
             deletePageHandler(page);
           }}
         >
@@ -59,7 +68,6 @@ function Item({ page, addSubPage, setActivePage, activePage,setLoading,apiUpdati
       </div>
     </>
   );
-  
 
   const items = [
     {
@@ -86,29 +94,35 @@ function Item({ page, addSubPage, setActivePage, activePage,setLoading,apiUpdati
             key={val.uniqueId}
           >
             {val.title ? val.title : "Untitled Page"}
-            <Popover
-              trigger="click"
-              placement="rightTop"
-              content={subPageContent}
-            >
-              <MoreOutlined />
-            </Popover>
+            {!readOnly ? (
+              <Popover
+                trigger="click"
+                placement="rightTop"
+                content={subPageContent}
+              >
+                <MoreOutlined />
+              </Popover>
+            ) : null}
           </Button>
         );
       }),
       extra: (
-        <Popover trigger="click" placement="rightTop" content={content}>
-          <MoreOutlined
-            onClick={(event) => {
-              event.stopPropagation();
-            }}
-          />
-        </Popover>
+        <>
+          {!readOnly ? (
+            <Popover trigger="click" placement="rightTop" content={content}>
+              <MoreOutlined
+                onClick={(event) => {
+                  event.stopPropagation();
+                }}
+              />
+            </Popover>
+          ) : null}
+        </>
       ),
     },
   ];
 
-  
+
   return (
     <>
       {page.subPages.length ? (
@@ -132,23 +146,25 @@ function Item({ page, addSubPage, setActivePage, activePage,setLoading,apiUpdati
             }}
           >
             <span>{page.title ? page.title : "Untitled Page"}</span>
-            <span>
-              {" "}
-              <Popover
-                style={{ backgroundColor: isActive ? "grey" : "unset" }}
-                onOpenChange={handleOpenChange}
-                open={open}
-                trigger="click"
-                placement="rightTop"
-                content={content}
-              >
-                <MoreOutlined
-                  onClick={(event) => {
-                    event.stopPropagation();
-                  }}
-                />
-              </Popover>
-            </span>
+            {!readOnly ? (
+              <span>
+                {" "}
+                <Popover
+                  style={{ backgroundColor: isActive ? "grey" : "unset" }}
+                  onOpenChange={handleOpenChange}
+                  open={open}
+                  trigger="click"
+                  placement="rightTop"
+                  content={content}
+                >
+                  <MoreOutlined
+                    onClick={(event) => {
+                      event.stopPropagation();
+                    }}
+                  />
+                </Popover>
+              </span>
+            ) : null}
           </Button>
         </div>
       )}
