@@ -45,18 +45,30 @@ const CreatePage = ({ readOnly }) => {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const data = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/docs/read`,
-        {
-          userId: localStorage.getItem("userId"),
-          documentId: localStorage.getItem("documentId"),
+      try {
+        const data = await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/docs/read`,
+          {
+            userId: JSON.parse(localStorage.getItem("userData"))?._id,
+            documentId: localStorage.getItem("documentId"),
+            subDomain: localStorage.getItem("subDomain"),
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        if (data.status === 200) {
+          if (data && data.data && data.data.message) {
+            setPages(data.data.message);
+            setActivePage(data.data.message[0]);
+          }
         }
-      );
-      setLoading(false);
-      if (data && data.data && data.data.message) {
-        setPages(data.data.message);
-        setActivePage(data.data.message[0]);
+      } catch (err) {
+        message.error(err.response.data.message);
       }
+      setLoading(false);
     })();
   }, [apiUpdationRef.current]);
 
@@ -67,9 +79,15 @@ const CreatePage = ({ readOnly }) => {
           const data = await axios.post(
             `${import.meta.env.VITE_BASE_URL}/docs/search`,
             {
-              userId: localStorage.getItem("userId"),
+              userId: JSON.parse(localStorage.getItem("userData"))?._id,
               documentId: localStorage.getItem("documentId"),
+              subDomain: localStorage.getItem("subDomain"),
               title: searchValue,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
             }
           );
           const optionsData = data?.data?.message.map((val) => {
@@ -108,14 +126,20 @@ const CreatePage = ({ readOnly }) => {
       referenceId: null,
       emoji: "😀",
       subPages: [],
-      user: localStorage.getItem("userId"),
+      user: JSON.parse(localStorage.getItem("userData"))?._id,
       documentId: localStorage.getItem("documentId"),
+      subDomain: localStorage.getItem("subDomain"),
     };
     setLoading(true);
     try {
       const data = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/docs/createPage`,
-        newPage
+        `${import.meta.env.VITE_BASE_URL}/docs/create`,
+        newPage,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
       setPages((prevPages) => [...prevPages, newPage]);
       setActivePage(newPage);
@@ -134,14 +158,20 @@ const CreatePage = ({ readOnly }) => {
         description: "",
         content: "",
         referenceId: parentPage.uniqueId,
+        subDomain: localStorage.getItem("subDomain"),
         emoji: "😄",
         subPages: [],
       };
       setLoading(true);
       try {
         const subPagesData = await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/docs/createPage`,
-          newSubPage
+          `${import.meta.env.VITE_BASE_URL}/docs/create`,
+          newSubPage,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
         );
         const updatedPages = [...pages];
         parentPage?.subPages?.push(newSubPage);
@@ -216,6 +246,11 @@ const CreatePage = ({ readOnly }) => {
           {
             cnameTarget: cName,
             url: subDomain,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           }
         );
         if (data.status === 200) {
@@ -237,19 +272,18 @@ const CreatePage = ({ readOnly }) => {
   };
   const currentHost = window.location.host;
   const subdomainPattern = /^[^.]+\.[^.]+$/;
-  console.log(":",readOnly)
-if(!readOnly){
+  console.log(":", readOnly);
+  if (!readOnly) {
     const isSubdomain = subdomainPattern.test(currentHost);
     if (isSubdomain) {
-      return (<>this is not a valid subdomain</>)
+      return <>this is not a valid subdomain</>;
     }
-}
-else{
-  const isSubdomain = subdomainPattern.test(currentHost);
-  if (!isSubdomain) {
-    navigate("/create")
+  } else {
+    const isSubdomain = subdomainPattern.test(currentHost);
+    if (!isSubdomain) {
+      navigate("/create");
+    }
   }
-}
   return (
     <Spin spinning={loading}>
       <Select
@@ -264,7 +298,7 @@ else{
         onSearch={searchHandler}
         onSelect={selectHandler}
       />
-      {!readOnly ? (
+      {/* {!readOnly ? (
         <Button
           onClick={() => {
             setShareModal(true);
@@ -272,7 +306,7 @@ else{
         >
           Share
         </Button>
-      ) : null}
+      ) : null} */}
       <Row>
         <Col span={18} push={6}>
           <Editor
@@ -309,11 +343,9 @@ else{
             },
             {
               title: "CName Enter",
-            
             },
             {
               title: "Waiting",
-              
             },
           ]}
         />

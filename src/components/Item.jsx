@@ -22,7 +22,12 @@ function Item({
     try {
       const data = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/docs/removePage`,
-        page
+        page,
+        {
+          headers:{
+            Authorization:`Bearer ${localStorage.getItem("token")}`
+          }
+        }
       );
       apiUpdationRef.current = !apiUpdationRef.current;
     } catch (err) {

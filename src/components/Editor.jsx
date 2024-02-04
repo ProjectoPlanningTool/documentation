@@ -39,7 +39,11 @@ function Editor({
       try {
         const data = await axios.post(
           `${import.meta.env.VITE_BASE_URL}/docs/editPage`,
-          page
+          page,{
+            headers:{
+              Authorization:`Bearer ${localStorage.getItem("token")}`
+            }
+          }
         );
         apiUpdationRef.current = !apiUpdationRef.current;
       } catch (err) {
@@ -59,7 +63,7 @@ function Editor({
       <React.Fragment key={page.uniqueId}>
         {isPageActive && (
           <>
-           {readOnly ? <Button
+           {!readOnly ? <Button
               onClick={() => {
                 pageHandler(page);
               }}
