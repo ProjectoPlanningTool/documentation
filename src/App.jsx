@@ -56,8 +56,8 @@ function App() {
         <NotAccess />
       ) : (
       <Routes>
-        <Route path="/" element={<CreatePage readOnly={true}/>} />
-        <Route path="/create" element={<CreatePage />} />
+        <Route exact path="/" element={<CreatePage readOnly={true}/>} />
+        <Route exact path="/create" element={<CreatePage />} />
         {/* <Route path="/login" element={<Login />} /> */}
       </Routes>
       )}

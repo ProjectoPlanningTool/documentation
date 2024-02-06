@@ -27,9 +27,12 @@ const SideBar = ({
             />
         </React.Fragment>
     ))}
-    <Button w={"100%"} onClick={addPage}>
+    {
+        !readOnly ? <Button w={"100%"} onClick={addPage}>
         Add New Page
-    </Button></>
+    </Button>: null
+    }
+    </>
   )
 }
 

@@ -273,17 +273,17 @@ const CreatePage = ({ readOnly }) => {
   const currentHost = window.location.host;
   const subdomainPattern = /^[^.]+\.[^.]+$/;
   console.log(":", readOnly);
-  if (!readOnly) {
-    const isSubdomain = subdomainPattern.test(currentHost);
-    if (isSubdomain) {
-      return <>this is not a valid subdomain</>;
-    }
-  } else {
-    const isSubdomain = subdomainPattern.test(currentHost);
-    if (!isSubdomain) {
-      navigate("/create");
-    }
-  }
+  // if (!readOnly) {
+  //   const isSubdomain = subdomainPattern.test(currentHost);
+  //   if (isSubdomain) {
+  //     return <>this is not a valid subdomain</>;
+  //   }
+  // } else {
+  //   const isSubdomain = subdomainPattern.test(currentHost);
+  //   if (!isSubdomain) {
+  //     navigate("/create");
+  //   }
+  // }
   return (
     <Spin spinning={loading}>
       <Select
