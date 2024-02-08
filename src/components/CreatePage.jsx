@@ -33,6 +33,20 @@ const CreatePage = ({ readOnly }) => {
   const debouncedSearchTerm = useDebounce(searchValue, 500);
   const apiUpdationRef = useRef(false);
   const uniqueId = new ShortUniqueId({ length: 10 }).rnd();
+  localStorage.setItem(
+    "userData",
+    JSON.stringify({
+      ...{
+        _id: "65b7d6e9176e92c945fe1114",
+        firstName: "yogi",
+        lastName: "singh",
+        email: "yogi@gmail.com",
+        token:
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjViN2Q2ZTkxNzZlOTJjOTQ1ZmUxMTE0In0sImlhdCI6MTcwNzI5MDIwNiwiZXhwIjoxNzA5ODgyMjA2fQ.QqMAKWGxgPuIeCIBf5HraphPpBou6Y_djRLi7mbWKI0",
+      },
+      isLoggedin: true,
+    })
+  );
   // useEffect(() => {
   //   const loggedInUser = JSON.parse(
   //     localStorage.getItem("userData")
