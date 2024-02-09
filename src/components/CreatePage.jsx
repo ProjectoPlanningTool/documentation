@@ -33,6 +33,10 @@ const CreatePage = ({ readOnly }) => {
   const debouncedSearchTerm = useDebounce(searchValue, 500);
   const apiUpdationRef = useRef(false);
   const uniqueId = new ShortUniqueId({ length: 10 }).rnd();
+
+  const docValue = new URLSearchParams(window.location.search).get(
+    "documentId"
+  );
   localStorage.setItem(
     "userData",
     JSON.stringify({
@@ -47,14 +51,6 @@ const CreatePage = ({ readOnly }) => {
       isLoggedin: true,
     })
   );
-  // useEffect(() => {
-  //   const loggedInUser = JSON.parse(
-  //     localStorage.getItem("userData")
-  //   )?.isLoggedin;
-  //   if (!loggedInUser) {
-  //     navigate("/login");
-  //   }
-  // }, [location.pathname]);
 
   useEffect(() => {
     (async () => {
@@ -64,7 +60,7 @@ const CreatePage = ({ readOnly }) => {
           `${import.meta.env.VITE_BASE_URL}/docs/read`,
           {
             userId: JSON.parse(localStorage.getItem("userData"))?._id,
-            documentId: localStorage.getItem("documentId"),
+            documentId: docValue,
             subDomain: localStorage.getItem("subDomain"),
           },
           {
@@ -94,7 +90,7 @@ const CreatePage = ({ readOnly }) => {
             `${import.meta.env.VITE_BASE_URL}/docs/search`,
             {
               userId: JSON.parse(localStorage.getItem("userData"))?._id,
-              documentId: localStorage.getItem("documentId"),
+              documentId: docValue,
               subDomain: localStorage.getItem("subDomain"),
               title: searchValue,
             },
@@ -141,7 +137,7 @@ const CreatePage = ({ readOnly }) => {
       emoji: "😀",
       subPages: [],
       user: JSON.parse(localStorage.getItem("userData"))?._id,
-      documentId: localStorage.getItem("documentId"),
+      documentId: docValue,
       subDomain: localStorage.getItem("subDomain"),
     };
     setLoading(true);
@@ -162,6 +158,35 @@ const CreatePage = ({ readOnly }) => {
       console.log("erropr", err);
     }
     setLoading(false);
+  };
+
+  const deleteProject = async (projectId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("Token not found in local storage");
+        return;
+      }
+
+      const response = await axios.delete(
+        "http://api.yogendersingh.tech/v2/apis/docs/delete-doc",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          data: {
+            id: projectId,
+          },
+        }
+      );
+      navigate("/");
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      throw error;
+    }
   };
 
   const addSubPage = async (parentPage) => {
@@ -312,15 +337,15 @@ const CreatePage = ({ readOnly }) => {
         onSearch={searchHandler}
         onSelect={selectHandler}
       />
-      {/* {!readOnly ? (
+      {!readOnly ? (
         <Button
           onClick={() => {
-            setShareModal(true);
+            deleteProject(`${localStorage.getItem("documentId")}`);
           }}
         >
-          Share
+          Delete
         </Button>
-      ) : null} */}
+      ) : null}
       <Row>
         <Col span={18} push={6}>
           <Editor

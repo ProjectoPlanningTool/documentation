@@ -1,39 +1,41 @@
-import { Button } from 'antd'
-import React from 'react'
-import Item from '../Item'
+import { Button } from "antd";
+import React from "react";
+import Item from "../Item";
 
 const SideBar = ({
-    addPage,
-	pages,
-	addSubPage,
-	setActivePage,
-	activePage,
-    setLoading,
-    apiUpdationRef,
-    readOnly
+  addPage,
+  pages,
+  addSubPage,
+  setActivePage,
+  activePage,
+  setLoading,
+  apiUpdationRef,
+  readOnly,
 }) => {
   return (
-   <>
-    {pages?.map((page) => (
+    <>
+      {pages?.map((page) => (
         <React.Fragment key={page.uniqueId}>
-            <Item
+          <Item
             readOnly={readOnly}
             apiUpdationRef={apiUpdationRef}
-                page={page}
-                addSubPage={addSubPage}
-                setActivePage={setActivePage}
-                activePage={activePage}
-                setLoading={setLoading}
-            />
+            page={page}
+            addSubPage={addSubPage}
+            setActivePage={setActivePage}
+            activePage={activePage}
+            setLoading={setLoading}
+          />
         </React.Fragment>
-    ))}
-    {
-        !readOnly ? <Button w={"100%"} onClick={addPage}>
-        Add New Page
-    </Button>: null
-    }
+      ))}
+      {!readOnly ? (
+        <div>
+          <Button w={"100%"} onClick={addPage}>
+            Add New Page
+          </Button>
+        </div>
+      ) : null}
     </>
-  )
-}
+  );
+};
 
-export default SideBar
+export default SideBar;

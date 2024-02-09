@@ -14,22 +14,31 @@ const ListingComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const userData = JSON.parse(localStorage.getItem("userData"));
+        const userId = userData?._id;
+        const token = localStorage.getItem("token");
+
+        if (!userId || !token) {
+          console.error("User ID or token not found in local storage");
+          return;
+        }
+
         const response = await axios.post(
           "http://api.yogendersingh.tech/v2/apis/docs/read-doc",
           {
-            userId: "65b7d6e9176e92c945fe1114",
-            subDomain: "docs.yogendersingh.tech",
+            userId: userId,
+            subDomain: localStorage.getItem("subDomain"),
             limit: 50,
             page: 1,
           },
           {
             headers: {
               "Content-Type": "application/json",
-              Authorization:
-                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjViN2Q2ZTkxNzZlOTJjOTQ1ZmUxMTE0In0sImlhdCI6MTcwNzI5MDIwNiwiZXhwIjoxNzA5ODgyMjA2fQ.QqMAKWGxgPuIeCIBf5HraphPpBou6Y_djRLi7mbWKI0",
+              Authorization: `Bearer ${token}`,
             },
           }
         );
+
         if (
           response.data &&
           response.data.message &&
@@ -50,10 +59,11 @@ const ListingComponent = () => {
   const handleButtonClick = (documentId, action) => {
     localStorage.setItem("documentId", documentId);
 
-    if (action === "read") {
-      navigate("/read");
-    } else if (action === "edit") {
-      navigate("/create");
+    if (action === "Read") {
+      navigate(`/read?documentId=${documentId}`);
+      console.log("first");
+    } else if (action === "Edit") {
+      navigate(`/create?documentId=${documentId}`);
     }
   };
 
@@ -71,9 +81,10 @@ const ListingComponent = () => {
       const values = await form.validateFields();
       const userData = JSON.parse(localStorage.getItem("userData"));
       const userId = userData?._id;
+      const token = localStorage.getItem("token");
 
-      if (!userId) {
-        console.error("User ID not found in local storage");
+      if (!userId || !token) {
+        console.error("User ID or token not found in local storage");
         return;
       }
 
@@ -81,19 +92,18 @@ const ListingComponent = () => {
         "http://api.yogendersingh.tech/v2/apis/docs/create-doc",
         {
           userId: userId,
-          subDomain: values.subDomain,
+          subDomain: localStorage.getItem("subDomain"),
           title: values.title,
         },
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjViN2Q2ZTkxNzZlOTJjOTQ1ZmUxMTE0In0sImlhdCI6MTcwNzI5MDIwNiwiZXhwIjoxNzA5ODgyMjA2fQ.QqMAKWGxgPuIeCIBf5HraphPpBou6Y_djRLi7mbWKI0",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
-
-      console.log("Document created successfully:", response.data);
+      localStorage.setItem("documentId", response.data.message._id);
+      navigate(`/create?documentId=${response.data.message._id}`);
       setModalVisible(false);
       form.resetFields();
     } catch (error) {
@@ -105,7 +115,7 @@ const ListingComponent = () => {
     <div>
       <div
         style={{
-          display: "inline-flex",
+          display: "flex",
           alignItems: "center",
           width: "100%",
           justifyContent: "space-between",
@@ -118,7 +128,7 @@ const ListingComponent = () => {
       </div>
       <Row gutter={[16, 16]} justify="center">
         {data.map((item) => (
-          <Col key={item._id} xs={24} sm={12} md={8} lg={6} xl={4}>
+          <Col key={item._id} xs={24} sm={24} md={12} lg={12} xl={8}>
             <Card
               title={item.title}
               style={{ marginBottom: 16 }}
@@ -137,20 +147,13 @@ const ListingComponent = () => {
 
       <Modal
         title="Create New Documentation"
-        visible={modalVisible}
+        open={modalVisible}
         onCancel={handleModalCancel}
         onOk={handleModalSubmit}
         okText="Submit"
         cancelText="Cancel"
       >
         <Form form={form} layout="vertical">
-          <Form.Item
-            name="subDomain"
-            label="Subdomain"
-            rules={[{ required: true, message: "Please enter the subdomain" }]}
-          >
-            <Input placeholder="Enter Subdomain" />
-          </Form.Item>
           <Form.Item
             name="title"
             label="Document Name"
