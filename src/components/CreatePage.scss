@@ -1,0 +1,13 @@
+.header-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 20px;
+  gap: 50px;
+
+  .doc-delete-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
