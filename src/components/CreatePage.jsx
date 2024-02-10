@@ -359,7 +359,7 @@ const CreatePage = ({ readOnly }) => {
 				</div>
 			</div>
 
-			<Row style={{ margin: "20px" }}>
+			<Row style={{ margin: "50px 20px" }}>
 				<Col span={6}>
 					<SideBar
 						readOnly={readOnly}
@@ -373,15 +373,6 @@ const CreatePage = ({ readOnly }) => {
 					/>
 				</Col>
 				<Col span={13}>
-					{/* <div
-						style={{
-							display: "flex",
-							justifyContent: "space-between",
-							margin: "15px 0",
-						}}
-					> */}
-
-					{/* </div> */}
 					<Editor
 						readOnly={readOnly}
 						apiUpdationRef={apiUpdationRef}

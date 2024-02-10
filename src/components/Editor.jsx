@@ -3,7 +3,8 @@ import { Button, Input } from "antd";
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import "./Editor.css";
+import modules from "./toolbar";
 
 const { TextArea, Text } = Input;
 
@@ -19,13 +20,13 @@ function Editor({
 }) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [value, setValue] = useState("");
-	const [modules, setModules] = useState({
-		toolbar: [
-			["bold", "italic", "underline", "strike"], // default modules
-			["blockquote", "code-block"],
-			[{ header: 1 }, { header: 2 }], // custom modules
-		],
-	});
+	// const [modules, setModules] = useState({
+	// 	toolbar: [
+	// 		["bold", "italic", "underline", "strike"], // default modules
+	// 		["blockquote", "code-block"],
+	// 		[{ header: 1 }, { header: 2 }], // custom modules
+	// 	],
+	// });
 
 	// useEffect(()=>{
 	//   const quillBox = document.querySelector(".ql-container");
@@ -60,7 +61,6 @@ function Editor({
 			titleRef.current.focus();
 		}
 	};
-	// const modules=
 
 	const renderPage = (page) => {
 		const isPageActive = activePage && page.uniqueId === activePage.uniqueId;
@@ -77,7 +77,7 @@ function Editor({
 									position: "absolute",
 									right: 0,
 									zIndex: 1,
-									margin: "0 10px",
+									margin: "17px 10px",
 								}}
 							>
 								{!isEditing ? <EditOutlined /> : <SaveOutlined />}
@@ -91,7 +91,11 @@ function Editor({
 							ref={titleRef}
 							value={page.title}
 							placeholder="Write you Title here"
-							style={{ fontSize: "35px", fontWeight: "bold" }}
+							style={{
+								fontSize: "35px",
+								fontWeight: "bold",
+								padding: "10px",
+							}}
 							onChange={(e) => pageTitle(page.uniqueId, e.target.value)}
 						/>
 						<Input
@@ -100,6 +104,7 @@ function Editor({
 							disabled={!isEditing}
 							value={page.description}
 							placeholder="Write description (Optional)"
+							style={{ padding: "0 13px" }}
 							onChange={(e) => pageDescription(page.uniqueId, e.target.value)}
 						/>
 						<ReactQuill
@@ -107,9 +112,11 @@ function Editor({
 							value={page.content}
 							onChange={(e) => pageContent(page.uniqueId, e.target.value)}
 							placeholder="Write the content here"
-							// modules={modules}
+							modules={modules}
 							readOnly={!isEditing}
-							style={{ width: "100%" }}
+							style={{
+								textAlign: "center",
+							}}
 						/>
 						{/* <Input
 							variant="borderless"
