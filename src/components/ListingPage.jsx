@@ -1,6 +1,7 @@
 import { Button, Card, Col, Form, Input, Modal, Row } from "antd";
 import axios from "axios";
 import React, { useState, useEffect } from "react";
+import { DiffOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import "./ListingPage.scss";
 
@@ -119,7 +120,7 @@ const ListingComponent = () => {
           Project.<span>Docs</span>
         </h1>
         <Button type="primary" onClick={handleCreateNew}>
-          Create New Documentation
+          <DiffOutlined /> Documentation
         </Button>
       </div>
       <Row gutter={[16, 16]} justify="center" className="listingGrid">
@@ -143,7 +144,7 @@ const ListingComponent = () => {
       </Row>
 
       <Modal
-        title="Create New Documentation"
+        title="New Documentation"
         open={modalVisible}
         onCancel={handleModalCancel}
         onOk={handleModalSubmit}
