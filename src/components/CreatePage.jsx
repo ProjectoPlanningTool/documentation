@@ -16,6 +16,7 @@ import Editor from "./Editor";
 import SideBar from "./SideBar";
 import axios from "axios";
 import ShortUniqueId from "short-unique-id";
+import "./CreatePage.scss";
 
 const CreatePage = ({ readOnly }) => {
   const location = useLocation();

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Card, Button, Row, Col, Modal, Form, Input } from "antd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import "./ListingPage.scss";
 
 const { Meta } = Card;
 
@@ -120,6 +121,7 @@ const ListingComponent = () => {
           width: "100%",
           justifyContent: "space-between",
         }}
+        className="listingHeader"
       >
         <h1 style={{ textAlign: "center" }}>Project Docs</h1>
         <Button type="primary" onClick={handleCreateNew}>
