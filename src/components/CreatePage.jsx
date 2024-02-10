@@ -16,6 +16,7 @@ import Editor from "./Editor";
 import SideBar from "./SideBar";
 import axios from "axios";
 import ShortUniqueId from "short-unique-id";
+import "./CreatePage.scss";
 
 const CreatePage = ({ readOnly }) => {
   const location = useLocation();
@@ -33,30 +34,52 @@ const CreatePage = ({ readOnly }) => {
   const debouncedSearchTerm = useDebounce(searchValue, 500);
   const apiUpdationRef = useRef(false);
   const uniqueId = new ShortUniqueId({ length: 10 }).rnd();
-  // useEffect(() => {
-  //   const loggedInUser = JSON.parse(
-  //     localStorage.getItem("userData")
-  //   )?.isLoggedin;
-  //   if (!loggedInUser) {
-  //     navigate("/login");
-  //   }
-  // }, [location.pathname]);
+
+  const docValue = new URLSearchParams(window.location.search).get(
+    "documentId"
+  );
+  localStorage.setItem(
+    "userData",
+    JSON.stringify({
+      ...{
+        _id: "65b7d6e9176e92c945fe1114",
+        firstName: "yogi",
+        lastName: "singh",
+        email: "yogi@gmail.com",
+        token:
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjViN2Q2ZTkxNzZlOTJjOTQ1ZmUxMTE0In0sImlhdCI6MTcwNzI5MDIwNiwiZXhwIjoxNzA5ODgyMjA2fQ.QqMAKWGxgPuIeCIBf5HraphPpBou6Y_djRLi7mbWKI0",
+      },
+      isLoggedin: true,
+    })
+  );
 
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const data = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/docs/read`,
-        {
-          userId: localStorage.getItem("userId"),
-          documentId: localStorage.getItem("documentId"),
+      try {
+        const data = await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/docs/read`,
+          {
+            userId: JSON.parse(localStorage.getItem("userData"))?._id,
+            documentId: docValue,
+            subDomain: localStorage.getItem("subDomain"),
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        if (data.status === 200) {
+          if (data && data.data && data.data.message) {
+            setPages(data.data.message);
+            setActivePage(data.data.message[0]);
+          }
         }
-      );
-      setLoading(false);
-      if (data && data.data && data.data.message) {
-        setPages(data.data.message);
-        setActivePage(data.data.message[0]);
+      } catch (err) {
+        message.error(err.response.data.message);
       }
+      setLoading(false);
     })();
   }, [apiUpdationRef.current]);
 
@@ -67,9 +90,15 @@ const CreatePage = ({ readOnly }) => {
           const data = await axios.post(
             `${import.meta.env.VITE_BASE_URL}/docs/search`,
             {
-              userId: localStorage.getItem("userId"),
-              documentId: localStorage.getItem("documentId"),
+              userId: JSON.parse(localStorage.getItem("userData"))?._id,
+              documentId: docValue,
+              subDomain: localStorage.getItem("subDomain"),
               title: searchValue,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
             }
           );
           const optionsData = data?.data?.message.map((val) => {
@@ -108,14 +137,20 @@ const CreatePage = ({ readOnly }) => {
       referenceId: null,
       emoji: "😀",
       subPages: [],
-      user: localStorage.getItem("userId"),
-      documentId: localStorage.getItem("documentId"),
+      user: JSON.parse(localStorage.getItem("userData"))?._id,
+      documentId: docValue,
+      subDomain: localStorage.getItem("subDomain"),
     };
     setLoading(true);
     try {
       const data = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/docs/createPage`,
-        newPage
+        `${import.meta.env.VITE_BASE_URL}/docs/create`,
+        newPage,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
       setPages((prevPages) => [...prevPages, newPage]);
       setActivePage(newPage);
@@ -126,6 +161,35 @@ const CreatePage = ({ readOnly }) => {
     setLoading(false);
   };
 
+  const deleteProject = async (projectId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("Token not found in local storage");
+        return;
+      }
+
+      const response = await axios.delete(
+        "http://api.yogendersingh.tech/v2/apis/docs/delete-doc",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          data: {
+            id: projectId,
+          },
+        }
+      );
+      navigate("/");
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      throw error;
+    }
+  };
+
   const addSubPage = async (parentPage) => {
     if (parentPage?.subPages) {
       const newSubPage = {
@@ -134,14 +198,20 @@ const CreatePage = ({ readOnly }) => {
         description: "",
         content: "",
         referenceId: parentPage.uniqueId,
+        subDomain: localStorage.getItem("subDomain"),
         emoji: "😄",
         subPages: [],
       };
       setLoading(true);
       try {
         const subPagesData = await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/docs/createPage`,
-          newSubPage
+          `${import.meta.env.VITE_BASE_URL}/docs/create`,
+          newSubPage,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
         );
         const updatedPages = [...pages];
         parentPage?.subPages?.push(newSubPage);
@@ -216,6 +286,11 @@ const CreatePage = ({ readOnly }) => {
           {
             cnameTarget: cName,
             url: subDomain,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           }
         );
         if (data.status === 200) {
@@ -237,19 +312,18 @@ const CreatePage = ({ readOnly }) => {
   };
   const currentHost = window.location.host;
   const subdomainPattern = /^[^.]+\.[^.]+$/;
-  console.log(":",readOnly)
-if(!readOnly){
-    const isSubdomain = subdomainPattern.test(currentHost);
-    if (isSubdomain) {
-      return (<>this is not a valid subdomain</>)
-    }
-}
-else{
-  const isSubdomain = subdomainPattern.test(currentHost);
-  if (!isSubdomain) {
-    navigate("/create")
-  }
-}
+  console.log(":", readOnly);
+  // if (!readOnly) {
+  //   const isSubdomain = subdomainPattern.test(currentHost);
+  //   if (isSubdomain) {
+  //     return <>this is not a valid subdomain</>;
+  //   }
+  // } else {
+  //   const isSubdomain = subdomainPattern.test(currentHost);
+  //   if (!isSubdomain) {
+  //     navigate("/create");
+  //   }
+  // }
   return (
     <Spin spinning={loading}>
       <Select
@@ -267,10 +341,10 @@ else{
       {!readOnly ? (
         <Button
           onClick={() => {
-            setShareModal(true);
+            deleteProject(`${localStorage.getItem("documentId")}`);
           }}
         >
-          Share
+          Delete
         </Button>
       ) : null}
       <Row>
@@ -309,11 +383,9 @@ else{
             },
             {
               title: "CName Enter",
-            
             },
             {
               title: "Waiting",
-              
             },
           ]}
         />
