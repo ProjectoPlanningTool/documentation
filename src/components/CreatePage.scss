@@ -10,7 +10,10 @@
   z-index: 10;
   background-color: white;
   padding-bottom: 10px;
-
+  p {
+    font-size: 30px;
+    font-weight: 700;
+  }
   .doc-delete-btn {
     display: flex;
     justify-content: space-between;
