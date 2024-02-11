@@ -2,7 +2,7 @@ import React from "react";
 import ForBiddenImage from "../assets/403 Error Forbidden.gif";
 
 const loginHandler = () => {
-	window.location.href = `http://projecto.cloud/?redirectUrl=${window.location.origin}`;
+	window.location.href = `https://auth.projecto.cloud/?redirectUrl=${window.location.origin}`;
 };
 const NotAccess = () => {
 	return (
