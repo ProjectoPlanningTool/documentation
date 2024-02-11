@@ -32,6 +32,7 @@ function App() {
 
   useEffect(() => {
     // console.log("first",localStorage.getItem("token"))
+    console.log("first,",localStorage.getItem("token") && !localStorage.getItem("userData"))
     if (localStorage.getItem("token") && !localStorage.getItem("userData")) {
       (async () => {
         const response = await axios(
@@ -47,6 +48,10 @@ function App() {
           localStorage.setItem(
             "userData",
             JSON.stringify(response?.data?.message?.user)
+          );
+          localStorage.setItem(
+            "subDomain",
+          "docs.yogendersingh.tech"
           );
           setDomainUrl({
             document: response?.data?.message?.documentationURls,
@@ -65,7 +70,7 @@ function App() {
         <Routes>
           <Route exact path="/" element={<ListingPage />} />
           <Route exact path="/read" element={<CreatePage readOnly={true} />} />
-          <Route exact path="/create" element={<CreatePage />} />
+          <Route exact path="/create" element={<CreatePage readOnly={false}/>} />
         </Routes>
       )}
     </>

@@ -17,6 +17,7 @@ import "./CreatePage.scss";
 import Editor from "./Editor";
 import SideBar from "./SideBar";
 import { useDebounce } from "./customHooks/debounce";
+import Icon, { DeleteFilled} from "@ant-design/icons"
 
 const CreatePage = ({ readOnly }) => {
 	const location = useLocation();
@@ -37,6 +38,9 @@ const CreatePage = ({ readOnly }) => {
 
 	const docValue = new URLSearchParams(window.location.search).get(
 		"documentId",
+	);
+	const docName = new URLSearchParams(window.location.search).get(
+		"name",
 	);
 	localStorage.setItem(
 		"userData",
@@ -326,8 +330,9 @@ const CreatePage = ({ readOnly }) => {
 	// }
 	return (
 		<Spin spinning={loading}>
+			<div style={{marginTop:"8rem"}}>
 			<div className="header-nav">
-				<p>Documentation</p>
+				<p>{docName}</p>
 
 				<div className="doc-delete-btn">
 					<Select
@@ -351,7 +356,7 @@ const CreatePage = ({ readOnly }) => {
 							type="primary"
 							style={{ margin: "0px 10px" }}
 						>
-							DELETE THIS DOC
+							Delete <DeleteFilled />
 						</Button>
 					) : null}
 
@@ -359,7 +364,7 @@ const CreatePage = ({ readOnly }) => {
 				</div>
 			</div>
 
-			<Row style={{ margin: "50px 20px" }}>
+			<Row style={{ margin: "50px 20px"  }}>
 				<Col span={6}>
 					<SideBar
 						readOnly={readOnly}
@@ -372,7 +377,7 @@ const CreatePage = ({ readOnly }) => {
 						activePage={activePage}
 					/>
 				</Col>
-				<Col span={13}>
+				<Col span={13} className="editor-class" >
 					<Editor
 						readOnly={readOnly}
 						apiUpdationRef={apiUpdationRef}
@@ -385,7 +390,7 @@ const CreatePage = ({ readOnly }) => {
 					/>
 				</Col>
 
-				<Col push={1} span={4}>
+				{/* <Col push={1} span={4}>
 					<div
 						style={{
 							backgroundColor: "red",
@@ -395,7 +400,7 @@ const CreatePage = ({ readOnly }) => {
 					>
 						ON THIS PAGE SECTION
 					</div>
-				</Col>
+				</Col> */}
 			</Row>
 			<Modal open={shareModal} onOk={handleOK} onCancel={handleCancel}>
 				<Steps
@@ -432,6 +437,8 @@ const CreatePage = ({ readOnly }) => {
 					"waiting for the response"
 				)}
 			</Modal>
+
+			</div>
 		</Spin>
 	);
 };

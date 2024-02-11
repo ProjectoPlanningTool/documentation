@@ -1053,19 +1053,23 @@
 }
 
 .ql-toolbar.ql-snow {
-  border: 1px solid #ccc;
+  border-image: linear-gradient(#2c3e50, #fd746c) 10;
+border-width: 1px;
+border-style: solid;
+  /* border: 1px solid #ccc; */
   box-sizing: border-box;
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
   padding: 8px;
-
+  width: 60%;
   /* Custom Change*/
+  margin-left: 20rem;
   position: fixed;
-  top: 80px;
+  top: 70px;
   z-index: 10;
   left: 0px;
   right: 0;
   /* border: none; */
-  /* background-color: wheat; */
+  background-color: white;
 }
 
 .ql-toolbar.ql-snow .ql-formats {
@@ -1187,4 +1191,18 @@
 
 div.blurred-editor div.ql-toolbar {
   display: none;
+}
+
+.ql-toolbar .ql-stroke {
+  fill: none;
+  stroke: rgb(42, 86, 108);
+}
+
+.ql-toolbar .ql-fill {
+  fill:  rgb(42, 86, 108);
+  stroke: none;
+}
+
+.ql-toolbar .ql-picker {
+  color:  rgb(42, 86, 108);
 }

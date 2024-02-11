@@ -4,6 +4,12 @@
   align-items: center;
   margin: 0 20px;
   gap: 50px;
+  position: fixed;
+  top: 0;
+  width: 97%;
+  z-index: 10;
+  background-color: white;
+  padding-bottom: 10px;
 
   .doc-delete-btn {
     display: flex;

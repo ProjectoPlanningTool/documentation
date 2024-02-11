@@ -58,14 +58,13 @@ const ListingComponent = () => {
     fetchData();
   }, []);
 
-  const handleButtonClick = (documentId, action) => {
-    localStorage.setItem("documentId", documentId);
-
+  const handleButtonClick = (document, action) => {
+    localStorage.setItem("documentId", document._id);
     if (action === "Read") {
-      navigate(`/read?documentId=${documentId}`);
+      navigate(`/read?documentId=${document._id}&name=${document.title}`);
       console.log("first");
     } else if (action === "Edit") {
-      navigate(`/create?documentId=${documentId}`);
+      navigate(`/create?documentId=${document._id}&name=${document.title}`);
     }
   };
 
@@ -131,10 +130,10 @@ const ListingComponent = () => {
               title={item.title}
               style={{ marginBottom: 16 }}
               actions={[
-                <Button onClick={() => handleButtonClick(item._id, "Read")}>
+                <Button onClick={() => handleButtonClick(item, "Read")}>
                   Read
                 </Button>,
-                <Button onClick={() => handleButtonClick(item._id, "Edit")}>
+                <Button onClick={() => handleButtonClick(item, "Edit")}>
                   Edit
                 </Button>,
               ]}
