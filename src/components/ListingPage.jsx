@@ -13,7 +13,6 @@ import defaultImage from "../assets/default.jpg";
 
 const { Meta } = Card;
 
-
 const ListingComponent = () => {
   const [data, setData] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -24,33 +23,6 @@ const ListingComponent = () => {
   const { Search } = Input;
   const fetchData = async () => {
     try {
-      if (localStorage.getItem("token") && !localStorage.getItem("userData")) {
-          const response = await axios(
-            `${import.meta.env.VITE_BASE_URL}/user/getInfo`,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            }
-          );
-          if (response.status === 200) {
-            // setUserData(response?.data?.message?.user);
-            localStorage.setItem(
-              "userData",
-              JSON.stringify(response?.data?.message?.user)
-            );
-            localStorage.setItem(
-              "subDomain",
-            "docs.yogendersingh.tech"
-            );
-            setDomainUrl({
-              document: response?.data?.message?.documentationURls,
-              blog: response?.data?.message?.blogUrls,
-              workflow: response?.data?.message?.workFlowUrls,
-            });
-            
-          }
-      }
       const userData = JSON.parse(localStorage.getItem("userData"));
       const userId = userData?._id;
       const token = localStorage.getItem("token");
@@ -90,17 +62,40 @@ const ListingComponent = () => {
     }
   };
 
-
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if(!storedToken){
-      navigate("/not-access")
+    const tokenInUrl = new URLSearchParams(location.search);
+    const token = tokenInUrl.get("token");
+    if (token) {
+      localStorage.setItem("token", token);
+    } else {
+      const storedToken = localStorage.getItem("token");
+      if (!storedToken) {
+        navigate("/not-access");
+      }
     }
-
-    fetchData();
+    if (localStorage.getItem("token") && !localStorage.getItem("userData")) {
+      (async () => {
+        const response = await axios(
+          `${import.meta.env.VITE_BASE_URL}/user/getInfo`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        if (response.status === 200) {
+          localStorage.setItem(
+            "userData",
+            JSON.stringify(response?.data?.message?.user)
+          );
+          localStorage.setItem("subDomain", "docs.yogendersingh.tech");
+          fetchData();
+        }
+      })();
+    } else {
+      fetchData();
+    }
   }, []);
-
-  
 
   const handleButtonClick = (document, action) => {
     localStorage.setItem("documentId", document._id);

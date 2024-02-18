@@ -16,21 +16,6 @@ function App() {
   //   workflow: [],
   // });
 
-  useEffect(() => {
-    const tokenInUrl = new URLSearchParams(location.search);
-    const token = tokenInUrl.get("token");
-    if (token) {
-      localStorage.setItem("token", token);
-      setLogin(true);
-    } else {
-      const storedToken = localStorage.getItem("token");
-      if (!storedToken) {
-        return setLogin(false);
-      }
-      setLogin(true);
-    }
-  }, []);
-
   return (
     <>
         <Routes>

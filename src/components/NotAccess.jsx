@@ -2,7 +2,7 @@ import React from "react";
 import {Button, Result} from "antd"
 
 const loginHandler = () => {
-	window.location.href = `https://auth.projecto.cloud/?redirectUrl=${window.location.origin}`;
+	window.location.href = `${import.meta.env.VITE_AUTH_URL}/?redirectUrl=${window.location.origin}`;
 };
 const NotAccess = () => {
 	return (
