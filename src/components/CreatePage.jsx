@@ -57,6 +57,13 @@ const CreatePage = ({ readOnly }) => {
 		}),
 	);
 
+	useEffect(()=>{
+		const storedToken = localStorage.getItem("token");
+		if(!storedToken){
+		  navigate("/not-access")
+		}
+	},[])
+
 	useEffect(() => {
 		(async () => {
 			setLoading(true);

@@ -13,6 +13,7 @@ import defaultImage from "../assets/default.jpg";
 
 const { Meta } = Card;
 
+
 const ListingComponent = () => {
   const [data, setData] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -21,51 +22,85 @@ const ListingComponent = () => {
   const [shortDescription, setShortDescription] = useState("");
   const navigate = useNavigate();
   const { Search } = Input;
+  const fetchData = async () => {
+    try {
+      if (localStorage.getItem("token") && !localStorage.getItem("userData")) {
+          const response = await axios(
+            `${import.meta.env.VITE_BASE_URL}/user/getInfo`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          );
+          if (response.status === 200) {
+            // setUserData(response?.data?.message?.user);
+            localStorage.setItem(
+              "userData",
+              JSON.stringify(response?.data?.message?.user)
+            );
+            localStorage.setItem(
+              "subDomain",
+            "docs.yogendersingh.tech"
+            );
+            setDomainUrl({
+              document: response?.data?.message?.documentationURls,
+              blog: response?.data?.message?.blogUrls,
+              workflow: response?.data?.message?.workFlowUrls,
+            });
+            
+          }
+      }
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      const userId = userData?._id;
+      const token = localStorage.getItem("token");
+
+      if (!userId || !token) {
+        console.error("User ID or token not found in local storage");
+        return;
+      }
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/docs/read-doc`,
+        {
+          userId: userId,
+          subDomain: localStorage.getItem("subDomain"),
+          limit: 50,
+          page: 1,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (
+        response.data &&
+        response.data.message &&
+        response.data.message.docs
+      ) {
+        setData(response.data.message.docs);
+      } else {
+        console.error("Unexpected API response structure:", response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const userData = JSON.parse(localStorage.getItem("userData"));
-        const userId = userData?._id;
-        const token = localStorage.getItem("token");
-
-        if (!userId || !token) {
-          console.error("User ID or token not found in local storage");
-          return;
-        }
-
-        const response = await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/docs/read-doc`,
-          {
-            userId: userId,
-            subDomain: localStorage.getItem("subDomain"),
-            limit: 50,
-            page: 1,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (
-          response.data &&
-          response.data.message &&
-          response.data.message.docs
-        ) {
-          setData(response.data.message.docs);
-        } else {
-          console.error("Unexpected API response structure:", response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
+    const storedToken = localStorage.getItem("token");
+    if(!storedToken){
+      navigate("/not-access")
+    }
 
     fetchData();
   }, []);
+
+  
 
   const handleButtonClick = (document, action) => {
     localStorage.setItem("documentId", document._id);

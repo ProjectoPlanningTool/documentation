@@ -1,16 +1,17 @@
 import React from "react";
-import ForBiddenImage from "../assets/403 Error Forbidden.gif";
+import {Button, Result} from "antd"
 
 const loginHandler = () => {
 	window.location.href = `https://auth.projecto.cloud/?redirectUrl=${window.location.origin}`;
 };
 const NotAccess = () => {
 	return (
-		<>
-			<img src={ForBiddenImage} alt="no data" />
-			<div>you are not authorized please try to login</div>
-			<button onClick={loginHandler}>Login</button>
-		</>
+		 <Result
+    status="403"
+    title="403"
+    subTitle="Sorry, you are not authorized to access this page."
+    extra={<Button type="primary" onClick={loginHandler}>Login</Button>}
+  />
 	);
 };
 
