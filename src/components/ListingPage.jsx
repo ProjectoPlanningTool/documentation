@@ -35,7 +35,7 @@ const ListingComponent = () => {
         }
 
         const response = await axios.post(
-          "http://api.yogendersingh.tech/v2/apis/docs/read-doc",
+          `${import.meta.env.VITE_BASE_URL}/docs/read-doc`,
           {
             userId: userId,
             subDomain: localStorage.getItem("subDomain"),
@@ -110,7 +110,7 @@ const ListingComponent = () => {
       }
 
       const response = await axios.post(
-        "http://api.yogendersingh.tech/v2/apis/docs/create-doc",
+        `${import.meta.env.VITE_BASE_URL}/docs/create-doc`,
         requestData,
         {
           headers: {

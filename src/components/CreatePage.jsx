@@ -175,7 +175,7 @@ const CreatePage = ({ readOnly }) => {
 			}
 
 			const response = await axios.delete(
-				"http://api.yogendersingh.tech/v2/apis/docs/delete-doc",
+				`${import.meta.env.VITE_BASE_URL}/docs/delete-doc`,
 				{
 					headers: {
 						"Content-Type": "application/json",
